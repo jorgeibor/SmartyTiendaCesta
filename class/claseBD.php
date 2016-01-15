@@ -60,20 +60,26 @@ class claseBD{
             }else{
                 //Si existe ya en la cesta, modifica los campos de cantidad y PVP
                 foreach ($infoCesta->get_productos() as $producto){
-                    if(isset($prod->getcodigo())){
+                    if($producto->getcodigo() == $prod->getcodigo()){
                         $producto->set("cantidad", ($producto->getcantidad() + 1));
                         $producto->set("PVP", ($producto->getcantidad() * $producto->getPVP()));
+                        $existe = true;
+                        break;
                     }else{
-                        $infoCesta->nuevo_articulo($con, $prod->getcodigo());
+                        $existe = false;
                     }
                 }
-                
+                if($existe == false){
+                    $infoCesta->nuevo_articulo($con, $prod->getcodigo());    
+                }
             }
             $infoCesta->guarda_cesta();
         }
         
         if ($infoCesta->vacia()==false){
-            $coste = $infoCesta->get_coste();
+            foreach ($infoCesta->get_productos() as $producto){
+                $coste+=$producto->getPVP();
+            }
             $smarty->assign('coste', $coste);
         }
         
