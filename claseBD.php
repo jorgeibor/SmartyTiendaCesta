@@ -7,11 +7,81 @@ $password = 'root';
 $options= array( PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8", PDO::MYSQL_ATTR_FOUND_ROWS => true);
 
 
-function connectPDO($dns, $username, $password, $options) {
-    $conexion = new PDO($dns, $username, $password, $options);
-    $conexion->exec("SET CHARACTER SET utf8");
-    return $conexion;
+require_once('class/producto.php');
+require_once('class/cesta.php');
+
+class claseBD{
+    
+    public static function obtieneProductos($con) {
+
+        $values = ["*"=>""];
+        $sql = createSelect("producto", $values, $conditions);
+        $resultado = execSelect($con, $sql, $conditions);
+        $productos = array();
+
+        if($resultado) {
+            // Añadimos un elemento por cada producto obtenido
+            while ($row=$resultado->fetch()) {
+                $productos[] = new producto($row);
+            }
+        }
+
+        return $productos;
+    }
+    
+    public static function obtieneProducto($con, $codProd) {
+            if($codProd != null || $codProd != ""){
+                $values = ["*"=>""];
+                $conditions = ["cod"=>"$codProd"];
+                $sql = createSelect("producto", $values, $conditions);
+                $resultado = execSelect($con, $sql, $conditions);
+                $productos = array();
+                $producto = null;
+                if(isset($resultado)) {
+                    $row = $resultado->fetch();
+                    $producto = new Producto($row);
+                }
+                return $producto;
+            }
+        }
+
+    public static function connectPDO($dns, $username, $password, $options){
+        $conexion = new PDO($dns, $username, $password, $options);
+        $conexion->exec("SET CHARACTER SET utf8");
+        return $conexion;
+    }
+
+    public static function obtieneCesta($smarty, $con, $aniadir, $prod) {
+        
+        $infoCesta = cesta::carga_cesta();
+        if (isset($aniadir)) {
+            if(empty($infoCesta->get_productos())){
+                $infoCesta->nuevo_articulo($con, $prod->getcodigo());
+            }else{
+                foreach ($infoCesta->get_productos() as $producto){
+                    if($producto->getcodigo() == $prod->getcodigo()){
+                        
+                        $_SESSION['cesta'][$prod->getcodigo()] = ['cantidad' => ($producto->getcantidad()+1)];
+                        //$infoCesta->articulo_repe($con, $prod->getcodigo());
+                    }else{
+                        $infoCesta->nuevo_articulo($con, $prod->getcodigo());
+                    }
+                }
+                
+            }
+            $infoCesta->guarda_cesta();
+        }
+        
+        if ($infoCesta->vacia()==false){
+            $coste = $infoCesta->get_coste();
+            $smarty->assign('coste', $coste);
+        }
+        
+        return $infoCesta->get_productos();
+        
+    }
 }
+
 
 function createInsert($table, $values) {
     $sql = "Insert into $table (";
@@ -158,3 +228,4 @@ function arrayVal_Cond($values, $conditions) {
     }
     return $values;
 }
+
