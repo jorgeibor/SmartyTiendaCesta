@@ -10,25 +10,9 @@ class cesta {
         $producto = claseBD::obtieneProducto($con, $codigo);
         $this->productos[] = $producto;
     }
-    //Modificar cantidad de un producto ya repetido
-    public function articulo_repe($con, $codigo) {
-        
-        
-        $producto = claseBD::obtieneProducto($con, $codigo);
-        $producto->set("cantidad", ($producto->getcantidad() + 1));
-        $producto->set("PVP", ($producto->getcantidad() * $producto->getPVP()));
-        $this->productos[] = $producto;
-    }
  
     // Obtiene los artículos en la cesta
     public function get_productos() { return $this->productos; }
- 
-    // Obtiene el coste total de los artículos en la cesta
-    public function get_coste() {
-        $coste = 0;
-        foreach($this->producto as $p) $coste += $p->getPVP();
-        return $coste;
-    }
  
     // Devuelve true si la cesta está vacía
     public function vacia() {
