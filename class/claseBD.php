@@ -58,11 +58,11 @@ class claseBD{
             if(empty($infoCesta->get_productos())){
                 $infoCesta->nuevo_articulo($con, $prod->getcodigo());
             }else{
+                //Si existe ya en la cesta, modifica los campos de cantidad y PVP
                 foreach ($infoCesta->get_productos() as $producto){
-                    if($producto->getcodigo() == $prod->getcodigo()){
-                        
-                        //$_SESSION['cesta'][$prod->getcodigo()] = ['cantidad' => ($producto->getcantidad()+1)];
-                        $infoCesta->articulo_repe($con, $prod->getcodigo());
+                    if(isset($prod->getcodigo())){
+                        $producto->set("cantidad", ($producto->getcantidad() + 1));
+                        $producto->set("PVP", ($producto->getcantidad() * $producto->getPVP()));
                     }else{
                         $infoCesta->nuevo_articulo($con, $prod->getcodigo());
                     }
