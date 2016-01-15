@@ -61,8 +61,8 @@ class claseBD{
                 foreach ($infoCesta->get_productos() as $producto){
                     if($producto->getcodigo() == $prod->getcodigo()){
                         
-                        $_SESSION['cesta'][$prod->getcodigo()] = ['cantidad' => ($producto->getcantidad()+1)];
-                        //$infoCesta->articulo_repe($con, $prod->getcodigo());
+                        //$_SESSION['cesta'][$prod->getcodigo()] = ['cantidad' => ($producto->getcantidad()+1)];
+                        $infoCesta->articulo_repe($con, $prod->getcodigo());
                     }else{
                         $infoCesta->nuevo_articulo($con, $prod->getcodigo());
                     }
